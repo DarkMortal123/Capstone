@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BalanceBuddy</title>
+    <style>
+        body {
+            background: linear-gradient(#E0F7FA, #3954cff5) no-repeat;
+            font-family: 'Times New Roman', Times, serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        input, select {
+            width: 95%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #2196F3; /* Blue button */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BalanceBuddy</h1>
+        <p style="font-style: italic;">"Your Path to Productivity"</p>
+        <input type="text" placeholder="Username" id="username">
+        <input type="password" placeholder="Password" id="password">
+        <button onclick="login()">Log In</button>
+        <button onclick="showSignup()">Sign Up</button>
+    </div>
+
+    <!-- Signup Form (Hidden by Default) -->
+    <div id="signupForm" class="container" style="display: none;">
+        <h1>BalanceBuddy</h1>
+        <p>Please register first before logging-in</p>
+        <input type="text" placeholder="Username" id="signupUsername">
+        <input type="text" placeholder="First Name" id="firstName">
+        <input type="text" placeholder="Middle Name" id="middleName">
+        <input type="text" placeholder="Surname" id="surname">
+        <input type="text" placeholder="Grade & Section" id="gradeSection">
+        <select id="strand">
+            <option value="STEM">STEM</option>
+            <option value="ABM">ABM</option>
+            <option value="HUMSS">HUMSS</option>
+            <option value="ADT">ADT</option>
+        </select>
+        <input type="password" placeholder="Password" id="signupPassword">
+        <input type="password" placeholder="Confirm Password" id="confirmPassword">
+        <button onclick="submitSignup()">Submit</button>
+    </div>
+
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username && password) {
+                window.location.href = 'file:///C:/Users/kyrshna/OneDrive/Documents/Capstone%20(2)/second%20page.html'; // Redirect to C:\Users\kyrshna\OneDrive\Documents\Capstone (2)\second page.html
+            } else {
+                alert('Please fill out all fields.');
+            }
+        }
+
+        function showSignup() {
+            document.getElementById('signupForm').style.display = 'block';
+        }
+
+        function submitSignup() {
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (username && password && confirmPassword) {
+                if (password === confirmPassword) {
+                    window.location.href = 'file:///C:/Users/kyrshna/OneDrive/Documents/Capstone/.vscode/first%20page.html'; // Redirect back to file:///C:/Users/kyrshna/OneDrive/Documents/Capstone/.vscode/first%20page.html
+                }
+            } else {
+                alert('Please fill out all fields.');
+            }
+        }
+    </script>
+</body>
+</html>
