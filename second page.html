@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BalanceBuddy</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            min-height: 100vh;
+            transition: background 0.5s ease;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        nav {
+            background: #00796b;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+        }
+
+        .left-side {
+            width: 250px;
+            background: rgba(178, 235, 242, 0.9);
+            padding: 20px;
+            height: 100vh;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            transition: background 0.5s ease;
+        }
+
+        .username {
+            font-size: 1.5em;
+            color: #00796b;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: #80deea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .dashboard-item:hover {
+            transform: translateX(10px);
+            background: #4dd0e1;
+        }
+
+        .right-side {
+            flex: 1;
+            padding: 20px;
+            position: relative;
+        }
+
+        .home-logo, .calendar-logo {
+            position: absolute;
+            font-size: 2em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .home-logo { top: 20px; right: 20px; }
+        .calendar-logo { bottom: 20px; right: 20px; }
+
+        .home-logo:hover, .calendar-logo:hover {
+            transform: scale(1.1);
+        }
+
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: none;
+            transition: opacity 0.3s ease-in;
+        }
+
+        .active-section {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        #task-form input, #task-form select {
+            width: 95%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #80deea;
+            border-radius: 5px;
+        }
+
+        #task-form button {
+            background: #00796b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .priority-category {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+
+        .red { background: #ffcdd2; }
+        .orange { background: #ffe0b2; }
+        .green { background: #c8e6c9; }
+
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #00796b;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .calendar-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .calendar-day:hover {
+            background: #e0f7fa;
+        }
+
+        .quote {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2em;
+            color: #00796b;
+            font-style: italic;
+        }
+
+        footer {
+            background: #00796b;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>BalanceBuddy</h1>
+    </nav>
+    <div class="container">
+        <div class="left-side">
+            <div class="username">@username</div>
+            <div class="dashboard">
+                <div class="dashboard-item" onclick="showSection('task-details')">Task Details</div>
+                <div class="dashboard-item" onclick="showSection('task-tracker')">Task Tracker</div>
+                <div class="dashboard-item" onclick="showSection('priority-list')">Priority List</div>
+            </div>
+        </div>
+
+        <div class="right-side">
+            <div class="home-logo" onclick="showSection('home')">🏡</div>
+            <div class="calendar-logo" onclick="showCalendar()">📅</div>
+
+            <div id="home" class="section active-section">
+                <h2>Welcome Back, User!</h2>
+                <div class="overview">
+                    <h3>📊 Task Overview</h3>
+                    <div id="task-summary"></div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="task-details" class="section">
+                <h2>➕ Add New Task</h2>
+                <form id="task-form" onsubmit="addTask(event)">
+                    <input type="text" name="subject" placeholder="Subject Area" required>
+                    <input type="date" name="dueDate" required>
+                    <select name="difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="normal">Normal</option>
+                        <option value="difficult">difficult</option>
+                    </select>
+                    <button type="submit">Add Task</button>
+                </form>
+            </div>
+
+            <div id="task-tracker" class="section">
+                <h2>✅ Task Progress</h2>
+                <div id="task-list"></div>
+            </div>
+
+            <div id="priority-list" class="section">
+                <h2> Priority Tasks</h2>
+                <div class="priority-category red">Urgent Tasks</div>
+                <div class="priority-category orange">Mid Urgent Tasks</div>
+                <div class="priority-category green">Not Urgent Tasks</div>
+            </div>
+        </div>
+
+        <div id="calendar-modal" class="calendar-modal">
+            <h2>2025 Calendar</h2>
+            <button onclick="closeCalendar()">Close</button>
+            <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
+
+        <div class="quote">"Pressure Is Privilege"</div>
+    </div>
+    <footer>
+        <p>&copy; 2025 BalanceBuddy. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active-section');
+            });
+            document.getElementById(sectionId).classList.add('active-section');
+            updateTaskDisplay();
+        }
+
+        function addTask(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const newTask = {
+                subject: formData.get('subject'),
+                dueDate: formData.get('dueDate'),
+                difficulty: formData.get('difficulty'),
+                completed: false
+            };
+            tasks.push(newTask);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            event.target.reset();
+            updateTaskDisplay();
+        }
+
+        function updateTaskDisplay() {
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = tasks.map((task, index) => `
+                <div class="task-item">
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                           onchange="toggleTask(${index})">
+                    ${task.subject} - ${task.dueDate} (${task.difficulty})
+                    <button onclick="editTask(${index})">Edit</button>
+                    <button onclick="deleteTask(${index})">Delete</button>
+                </div>
+            `).join('');
+
+            const completed = tasks.filter(t => t.completed).length;
+            const progress = (completed / tasks.length) * 100 || 0;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            updatePriorityCategories();
+        }
+
+        function toggleTask(index) {
+            tasks[index].completed = !tasks[index].completed;
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            updateTaskDisplay();
+        }
+
+        function editTask(index) {
+            const task = tasks[index];
+            const form = document.getElementById('task-form');
+            form.elements['subject'].value = task.subject;
+            form.elements['dueDate'].value = task.dueDate;
+            form.elements['difficulty'].value = task.difficulty;
+            form.onsubmit = function(event) {
+                event.preventDefault();
+                task.subject = form.elements['subject'].value;
+                task.dueDate = form.elements['dueDate'].value;
+                task.difficulty = form.elements['difficulty'].value;
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                form.reset();
+                form.onsubmit = addTask;
+                updateTaskDisplay();
+            };
+            showSection('task-details');
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            updateTaskDisplay();
+        }
+
+        function updatePriorityCategories() {
+            const now = new Date();
+            const urgentTasks = tasks.filter(task => {
+                const dueDate = new Date(task.dueDate);
+                return (dueDate - now) / (1000 * 60 * 60 * 24) <= 3;
+            });
+            const midUrgentTasks = tasks.filter(task => {
+                const dueDate = new Date(task.dueDate);
+                return (dueDate - now) / (1000 * 60 * 60 * 24) > 3 && (dueDate - now) / (1000 * 60 * 60 * 24) <= 7;
+            });
+            const notUrgentTasks = tasks.filter(task => {
+                const dueDate = new Date(task.dueDate);
+                return (dueDate - now) / (1000 * 60 * 60 * 24) > 7;
+            });
+
+            document.querySelector('.priority-category.red').innerHTML = urgentTasks.map(task => `
+                <div>${task.subject} - ${task.dueDate} (${task.difficulty})</div>
+            `).join('');
+
+            document.querySelector('.priority-category.orange').innerHTML = midUrgentTasks.map(task => `
+                <div>${task.subject} - ${task.dueDate} (${task.difficulty})</div>
+            `).join('');
+
+            document.querySelector('.priority-category.green').innerHTML = notUrgentTasks.map(task => `
+                <div>${task.subject} - ${task.dueDate} (${task.difficulty})</div>
+            `).join('');
+        }
+
+        function showCalendar() {
+            const modal = document.getElementById('calendar-modal');
+            const calendarGrid = document.getElementById('calendar-grid');
+            calendarGrid.innerHTML = '';
+            const daysInMonth = (month, year) => new Date(year, month, 0).getDate();
+            const year = 2025;
+            for (let month = 1; month <= 12; month++) {
+                for (let day = 1; day <= daysInMonth(month, year); day++) {
+                    calendarGrid.innerHTML += `<div class="calendar-day">${day}/${month}/${year}</div>`;
+                }
+            }
+            modal.style.display = 'block';
+        }
+
+        function closeCalendar() {
+            document.getElementById('calendar-modal').style.display = 'none';
+        }
+
+        updateTaskDisplay();
+    </script>
+</body>
+</html>
